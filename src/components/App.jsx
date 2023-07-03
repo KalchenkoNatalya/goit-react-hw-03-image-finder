@@ -22,7 +22,7 @@ export class App extends Component {
 
   handleFormSubmit = searchQuery => {
     // console.log(searchQuery);
-    this.setState({ query: searchQuery });
+    this.setState({ query: searchQuery, page: 1 });
   };
   handleLoadMore = e => {
     e.preventDefault();
@@ -44,7 +44,6 @@ export class App extends Component {
     this.setState({ isModal: false, selectedImage: '' });
   };
 
- 
   async componentDidUpdate(prevProps, prevState) {
     if (
       prevState.query !== this.state.query ||
@@ -62,8 +61,9 @@ export class App extends Component {
             images: [...prevState.images, ...images.hits],
             totalHits: images.totalHits,
           });
-        } else
+        } else {
           this.setState({ images: images.hits, totalHits: images.totalHits });
+        }
       } catch (error) {
         this.setState({ error });
         alert('error: ' + this.state.error);
