@@ -1,5 +1,7 @@
 import styles from './Searchbar.module.css';
 import { Component } from 'react';
+import PropTypes from 'prop-types'
+
 
 export class Searchbar extends Component {
   state = {
@@ -7,8 +9,8 @@ export class Searchbar extends Component {
   };
 
   handleInputChange = event => {
-    this.setState({ valueInput: event.target.value.toLowerCase() });
-    console.log(this.state.valueInput);
+    this.setState({ valueInput: event.target.value.toLowerCase().trim() });
+    // console.log(this.state.valueInput);
   };
 
   handleSubmit = event => {
@@ -45,3 +47,9 @@ export class Searchbar extends Component {
     );
   }
 }
+
+
+Searchbar.propTypes = {
+  valueInput: PropTypes.string,
+  onSubmit: PropTypes.func.isRequired,
+};

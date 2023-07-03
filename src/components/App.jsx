@@ -1,11 +1,12 @@
+import styles from './App.module.css';
 import { Searchbar } from './Searchbar/Searchbar';
 import { Component } from 'react';
 import { fetchImage } from '../services/Api';
 import { ImageGallery } from './ImageGallery/ImageGallery';
-import styles from './App.module.css';
 import { Button } from './Button/Button';
-
 import { Loader } from './Loader/Loader';
+import { Modal } from './Modal/Modal';
+import PropTypes from 'prop-types';
 
 export class App extends Component {
   state = {
@@ -14,38 +15,36 @@ export class App extends Component {
     error: null,
     query: '',
     page: 1,
-    totalHits: '',
+    totalHits: 0,
+    isModal: false,
+    selectedImage: '',
   };
 
   handleFormSubmit = searchQuery => {
-    console.log(searchQuery);
+    // console.log(searchQuery);
     this.setState({ query: searchQuery });
   };
   handleLoadMore = e => {
     e.preventDefault();
-    console.log('loading more');
+    // console.log('loading more');
     this.setState(prevState => ({
       page: prevState.page + 1,
     }));
   };
 
-  // async componentDidMount() {
-  //   this.setState({ isLoading: true });
-  //   try {
-  //     if (this.state.query.trim() === '') {
-  //       return;
-  //     }
-  //     const images = await fetchImage(this.state.query, this.state.page);
-  //     console.log(images);
-  //     this.setState({ images: images.hits, totalHits: images.totalHits });
-  //   } catch (error) {
-  //     this.setState({ error });
-  //     alert('error: ' + this.state.error);
-  //   } finally {
-  //     this.setState({ isLoading: false });
-  //   }
-  // }
+  handleClickImage = e => {
+    e.preventDefault();
+    console.log(e.target.src);
+  };
+  onOpenModal = imageURL => {
+    this.setState({ isModal: true, selectedImage: imageURL });
+  };
 
+  onCloseModal = () => {
+    this.setState({ isModal: false, selectedImage: '' });
+  };
+
+ 
   async componentDidUpdate(prevProps, prevState) {
     if (
       prevState.query !== this.state.query ||
@@ -58,7 +57,6 @@ export class App extends Component {
           alert('Nothing was found for your image request');
         }
 
-        // console.log(images);
         if (prevState.query === this.state.query) {
           this.setState({
             images: [...prevState.images, ...images.hits],
@@ -82,12 +80,33 @@ export class App extends Component {
 
         {this.state.isLoading && <Loader />}
 
-        <ImageGallery images={this.state.images} />
+        <ImageGallery
+          images={this.state.images}
+          onOpenModal={this.onOpenModal}
+        />
 
         {this.state.page < Math.ceil(this.state.totalHits / 12) ? (
           <Button onClick={this.handleLoadMore} />
         ) : null}
+        {this.state.isModal && (
+          <Modal
+            largeImage={this.state.selectedImage}
+            onClick={this.onCloseModal}
+            onCloseModal={this.onCloseModal}
+          />
+        )}
       </div>
     );
   }
 }
+
+App.propTypes = {
+  images: PropTypes.array,
+  isLoading: PropTypes.bool,
+  error: PropTypes.string,
+  query: PropTypes.string,
+  page: PropTypes.number,
+  totalHits: PropTypes.number,
+  isModal: PropTypes.bool,
+  selectedImage: PropTypes.string,
+};
